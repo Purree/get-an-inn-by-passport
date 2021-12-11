@@ -1,27 +1,8 @@
-import time
-import json
-import requests as requests
-from configparser import ConfigParser
+import os.path
+from datetime import datetime
 
-
-def get_auth_cookie():
-    cookie = requests.post('https://service.nalog.ru/static/personal-data-proc.json', data={
-        'from': '/inn.do',
-        'svc': 'inn',
-        'personalData': '1'
-    })
-
-    return cookie.text
-
-
-def update_cookies():
-    config['COOKIES'] = \
-        {
-            'upd_inn': get_auth_cookie()
-        }
-
-    with open('config.ini', 'w') as conf:
-        config.write(conf)
+from Config import Config
+from inn_requests import send_request
 
 
 def parse_document(path):
@@ -39,7 +20,7 @@ def parse_document(path):
 
         bdate = ".".join(list(reversed(bdate.split('-'))))
         docno = docno[0:2] + ' ' + docno[2:4] + ' ' + docno[4::]
-        reformatted_data.append({
+        reformatted_data.append([line, {
             'c': 'find',
             'fam': fam,
             'nam': nam,
@@ -47,40 +28,50 @@ def parse_document(path):
             'doctype': 21,
             'docno': docno,
             'bdate': bdate
-        })
+        }])
 
     return reformatted_data
 
 
-def send_request(data, cookies, timeout=0, request_id=''):
-    time.sleep(timeout)
-
-    request = requests.post('https://service.nalog.ru/inn-new-proc.do',
-                            data=data,
-                            cookies=cookies
-                            )
-
-    print(request.json())
-    request_id = request.json()['requestId'] if not request_id else request_id
-
-    return request.json()['inn'] if 'inn' in request.json() else send_request({
-        'c': 'get',
-        'requestId': request_id
-    }, cookies, timeout + 1, request_id)
-
-
 if __name__ == '__main__':
-    data_for_requests = parse_document("C:\\Users\\asus\\Downloads\\1000.txt")
-    config = ConfigParser()
-    config.read("config.ini")
-
-    try:
-        config['COOKIES']
-    except KeyError:
-        update_cookies()
+    config = Config().get_config
 
     config_cookies = config['COOKIES']
+    config_timeouts = config['TIMEOUTS']
+    config_paths = config['PATHS']
+    config_proxy = config['PROXIES']
+
+    data_for_requests = parse_document(config_paths['innerPath'])
+
+    if os.path.isfile(config_paths['outerPath']):
+        with open(config_paths['outerPath'], 'a', encoding='utf-8') as completed_data:
+            completed_data.write(f'\n_________________{datetime.now()}______________________\n')
 
     for data in data_for_requests:
         print(data)
-        print(send_request(data, config_cookies))
+
+        try:
+            received_data = send_request(
+                data[1],
+                config_cookies,
+                int(config_timeouts["timeout"]),
+                int(config_timeouts["interval"]),
+                proxies=dict(config["PROXIES"])
+            )
+
+        except Exception as error:
+            if error == 'Missing dependencies for SOCKS support.':
+                exit('Отсутствует поддержка SOCKS прокси')
+
+            with open('.\\crashlog.txt', 'a', encoding='utf-8') as crash_log:
+                crash_log.write(f'\n_________________{datetime.now()}______________________\n')
+                crash_log.write(str(error))
+
+            exit('Ошибка со стороны сервера, возможно, нерабочий прокси. Ошибка была записана в crashlog')
+
+        with open(config_paths['outerPath'], 'a', encoding='utf-8') as completed_data:
+            completed_data.write(
+                f'{"|".join(data[0])}|'
+                f'{received_data}'
+                f'\n'
+            )
