@@ -3,13 +3,6 @@ import json
 import requests as requests
 from configparser import ConfigParser
 
-config = ConfigParser()
-config.read("config.ini")
-
-userdata = []
-with open('data.json', encoding='utf-8') as json_file:
-    userdata = json.load(json_file)
-
 
 def get_auth_cookie():
     cookie = requests.post('https://service.nalog.ru/static/personal-data-proc.json', data={
@@ -31,12 +24,32 @@ def update_cookies():
         config.write(conf)
 
 
-try:
-    config['COOKIES']
-except KeyError:
-    update_cookies()
+def parse_document(path):
+    data_from_document = open(path, 'r', encoding='utf-8').readlines()
+    reformatted_data = []
+    for line in data_from_document:
+        line = line.replace("\n", "").split('|')
+        if len(line) < 4:
+            continue
 
-config_cookies = config['COOKIES']
+        if '-' in line[2]:
+            fam, nam, bdate, docno = line
+        else:
+            fam, nam, otch, bdate, docno = line
+
+        bdate = ".".join(list(reversed(bdate.split('-'))))
+        docno = docno[0:2] + ' ' + docno[2:4] + ' ' + docno[4::]
+        reformatted_data.append({
+            'c': 'find',
+            'fam': fam,
+            'nam': nam,
+            'opt_otch': 1,
+            'doctype': 21,
+            'docno': docno,
+            'bdate': bdate
+        })
+
+    return reformatted_data
 
 
 def send_request(data, cookies, timeout=0, request_id=''):
@@ -46,9 +59,10 @@ def send_request(data, cookies, timeout=0, request_id=''):
                             data=data,
                             cookies=cookies
                             )
-    request_id = request.json()['requestId'] if not request_id else request_id
 
     print(request.json())
+    request_id = request.json()['requestId'] if not request_id else request_id
+
     return request.json()['inn'] if 'inn' in request.json() else send_request({
         'c': 'get',
         'requestId': request_id
@@ -56,4 +70,17 @@ def send_request(data, cookies, timeout=0, request_id=''):
 
 
 if __name__ == '__main__':
-    print(send_request(userdata, config_cookies))
+    data_for_requests = parse_document("C:\\Users\\asus\\Downloads\\1000.txt")
+    config = ConfigParser()
+    config.read("config.ini")
+
+    try:
+        config['COOKIES']
+    except KeyError:
+        update_cookies()
+
+    config_cookies = config['COOKIES']
+
+    for data in data_for_requests:
+        print(data)
+        print(send_request(data, config_cookies))
