@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>706</width>
-    <height>400</height>
+    <height>430</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,17 +19,20 @@
   <property name="minimumSize">
    <size>
     <width>706</width>
-    <height>400</height>
+    <height>430</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>706</width>
-    <height>400</height>
+    <height>430</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="toolTipDuration">
+   <number>-1</number>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
@@ -140,7 +143,7 @@
     <property name="geometry">
      <rect>
       <x>320</x>
-      <y>350</y>
+      <y>370</y>
       <width>75</width>
       <height>24</height>
      </rect>
@@ -152,8 +155,8 @@
    <widget class="QLabel" name="inputPath">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>350</y>
+      <x>10</x>
+      <y>370</y>
       <width>321</width>
       <height>20</height>
      </rect>
@@ -177,8 +180,8 @@
    <widget class="QLabel" name="outputPath">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>350</y>
+      <x>410</x>
+      <y>370</y>
       <width>301</width>
       <height>21</height>
      </rect>
@@ -348,8 +351,8 @@
    <widget class="QLabel" name="errorText">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>370</y>
+      <x>20</x>
+      <y>390</y>
       <width>691</width>
       <height>20</height>
      </rect>
@@ -368,6 +371,35 @@
     </property>
     <property name="wordWrap">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="activateTextOutput">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>410</y>
+      <width>261</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Включить пролистывание вывода</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textProgress">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>350</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0/0</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

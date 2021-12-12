@@ -40,10 +40,13 @@ class Config:
         if outer_path is None and self.is_property_exist('PATHS'):
             outer_path = self.config['PATHS']['outerpath']
 
+        if outer_path[-13:] != 'completed.txt':
+            outer_path += '\\completed.txt'
+
         self.config['PATHS'] = \
             {
                 'innerPath': inner_path,
-                'outerPath': outer_path + '\\completed.txt'
+                'outerPath': outer_path
             }
 
         self.write_data_to_file()

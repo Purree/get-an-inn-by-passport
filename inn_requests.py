@@ -15,9 +15,10 @@ def get_auth_cookie():
     return cookie.text
 
 
-def send_request(request_data, cookies, timeout=0, interval=1, request_id='', proxies=None):
+def send_request(request_data, cookies, timeout=0, interval=1, request_id='', proxies=None,
+                 print_function=lambda data: print(data)):
     """
-    Recursive function what get requestId from nalog.ru and, after it, get inn of user
+    Recursive function that get requestId from nalog.ru and after it get inn of user
 
     :param request_data: Dictionary Required
     :param cookies: Required because site wasn't work without upd_inn cookie
@@ -25,6 +26,7 @@ def send_request(request_data, cookies, timeout=0, interval=1, request_id='', pr
     :param interval: Integer Optional
     :param request_id: Integer|String Optional
     :param proxies: Dictionary|None Optional
+    :param print_function: Function Optional Logs output function. For default - print in console
     :return: String User inn
     """
 
@@ -42,7 +44,7 @@ def send_request(request_data, cookies, timeout=0, interval=1, request_id='', pr
                             proxies=proxies
                             )
 
-    print(request.json())
+    print_function(f'{request.json()}')
     request_id = request.json()['requestId'] if not request_id else request_id
 
     if 'error_code' in request.json():
@@ -52,4 +54,4 @@ def send_request(request_data, cookies, timeout=0, interval=1, request_id='', pr
     return request.json()['inn'] if 'inn' in request.json() else send_request({
         'c': 'get',
         'requestId': request_id
-    }, cookies, timeout + interval, interval, request_id)
+    }, cookies, timeout + interval, interval, request_id, proxies, print_function)
