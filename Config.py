@@ -7,9 +7,8 @@ class Config:
     config = None
 
     def __init__(self):
-        config = ConfigParser()
-        self.config = config
-        config.read("config.ini")
+        self.config = ConfigParser()
+        self.config.read("config.ini")
 
         self.validate_properties()
 
@@ -23,8 +22,7 @@ class Config:
                 'upd_inn': get_auth_cookie()
             }
 
-        with open('config.ini', 'w') as conf:
-            self.config.write(conf)
+        self.write_data_to_file()
 
     def set_timeouts(self, timeout=0, interval=1):
         self.config['TIMEOUTS'] = \
@@ -33,18 +31,34 @@ class Config:
                 'interval': interval
             }
 
-    def set_paths(self, inner_path, outer_path='.\\'):
+        self.write_data_to_file()
+
+    def set_paths(self, inner_path=None, outer_path=None):
+        if inner_path is None and self.is_property_exist('PATHS'):
+            inner_path = self.config['PATHS']['innerpath']
+
+        if outer_path is None and self.is_property_exist('PATHS'):
+            outer_path = self.config['PATHS']['outerpath']
+
         self.config['PATHS'] = \
             {
                 'innerPath': inner_path,
-                'outerPath': outer_path + 'completed.txt'
+                'outerPath': outer_path + '\\completed.txt'
             }
+
+        self.write_data_to_file()
 
     def set_proxies(self, proxy):
         self.config['PROXIES'] = \
             {
                 'https': proxy
             }
+
+        self.write_data_to_file()
+
+    def write_data_to_file(self):
+        with open('config.ini', 'w') as configfile:
+            self.config.write(configfile)
 
     def is_property_exist(self, property_name):
         """
@@ -74,7 +88,7 @@ class Config:
             self.set_timeouts(0, 1)
 
         if not self.is_property_exist('PATHS'):
-            self.set_paths('C:\\Users\\asus\\Downloads\\1000.txt')
+            self.set_paths('', '.')
 
         if not self.is_property_exist('PROXIES'):
             self.set_proxies('')
