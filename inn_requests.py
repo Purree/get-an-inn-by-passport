@@ -27,7 +27,7 @@ def get_random_proxy_from_file(path, iteration=0):
         return ''
 
     if not os.path.exists(path):
-        raise Exception('Путь не существует')
+        return ''
 
     proxy_line = random.choice(open(path, encoding='utf-8').readlines())  # get random line of document
     proxy_list = proxy_line.replace('\n', '').split(':')

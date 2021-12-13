@@ -25,6 +25,7 @@ class Ui(QtWidgets.QMainWindow):
         self.fileInputPicker.clicked.connect(self.change_input_path)
         self.fileOutputPicker.clicked.connect(self.change_output_path)
         self.activateTextOutput.clicked.connect(self.activate_text_output)
+        self.deleteProxy.clicked.connect(self.delete_proxy)
 
         self.function_started = False
 
@@ -58,6 +59,10 @@ class Ui(QtWidgets.QMainWindow):
             self.append_text_output(f'{error}')
             self.update_enabled_status(False)
 
+    def delete_proxy(self):
+        self.config.set_paths(proxy_path='')
+        self.proxyText.setText(self.config_paths['proxypath'])
+
     def stop_button_pressed(self):
         self.append_text_output('Скрипт выключен\n_________________\n')
         self.update_enabled_status(False)
@@ -77,6 +82,7 @@ class Ui(QtWidgets.QMainWindow):
         self.intervalInput.setEnabled(not self.function_started)
         self.timeoutInput.setEnabled(not self.function_started)
         self.fileOutputPicker.setEnabled(not self.function_started)
+        self.deleteProxy.setEnabled(not self.function_started)
         self.fileInputPicker.setEnabled(not self.function_started)
         self.StartButton.setEnabled(not self.function_started)
 

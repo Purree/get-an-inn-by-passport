@@ -31,6 +31,7 @@ class Controller:
         self.Logic.update_lines_count.connect(self.Ui.update_line_count)
         self.Logic.update_line_index.connect(self.Ui.update_current_line)
         self.Logic.update_proxy.connect(self.Ui.update_current_proxy)
+        self.Logic.throw_error.connect(self.Ui.throw_error)
 
     def parse_document(self, path):
         """
@@ -80,6 +81,7 @@ class Logic(QtCore.QThread):
     update_lines_count = QtCore.pyqtSignal(object)
     update_line_index = QtCore.pyqtSignal(object)
     update_proxy = QtCore.pyqtSignal(object)
+    throw_error = QtCore.pyqtSignal(object)
 
     def __init__(self, interface_instance, cookies, timeouts, paths, proxy, parse_document, write_data_to_file):
         """
@@ -122,6 +124,12 @@ class Logic(QtCore.QThread):
             self.update_line_index.emit(f'{index+1}')
 
             proxy = get_random_proxy_from_file(self.config_paths['proxypath'])
+
+            if proxy == '':
+                self.throw_error.emit('Вы не используете прокси')
+            else:
+                self.throw_error.emit('')
+
             self.update_proxy.emit(proxy)
 
             try:
