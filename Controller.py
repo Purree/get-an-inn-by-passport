@@ -6,7 +6,7 @@ from PyQt6.QtCore import QThread
 import PyQt6.QtCore as QtCore
 
 
-from inn_requests import send_request
+from inn_requests import send_request, get_random_proxy_from_file
 
 
 class Controller:
@@ -30,6 +30,7 @@ class Controller:
         self.Logic.update_enabled_status.connect(self.Ui.update_enabled_status)
         self.Logic.update_lines_count.connect(self.Ui.update_line_count)
         self.Logic.update_line_index.connect(self.Ui.update_current_line)
+        self.Logic.update_proxy.connect(self.Ui.update_current_proxy)
 
     def parse_document(self, path):
         """
@@ -78,6 +79,7 @@ class Logic(QtCore.QThread):
     update_enabled_status = QtCore.pyqtSignal(object)
     update_lines_count = QtCore.pyqtSignal(object)
     update_line_index = QtCore.pyqtSignal(object)
+    update_proxy = QtCore.pyqtSignal(object)
 
     def __init__(self, interface_instance, cookies, timeouts, paths, proxy, parse_document, write_data_to_file):
         """
@@ -119,13 +121,16 @@ class Logic(QtCore.QThread):
                 break
             self.update_line_index.emit(f'{index+1}')
 
+            proxy = get_random_proxy_from_file(self.config_paths['proxypath'])
+            self.update_proxy.emit(proxy)
+
             try:
                 received_data = send_request(
                     data_object,
                     self.config_cookies,
                     float(self.config_timeouts["timeout"]),
                     float(self.config_timeouts["interval"]),
-                    proxies=dict(self.config_proxy),
+                    proxy=proxy,
                     print_function=self.append_text_output.emit
                 )
 
@@ -133,8 +138,7 @@ class Logic(QtCore.QThread):
                 self.write_data_to_file(
                     '.\\crashlog.txt', 'a', f'\n_________________{datetime.now()}______________________\n '
                                             f'{str(traceback.format_exc())}')
-
-                if error == 'Missing dependencies for SOCKS support.':
+                if str(error) == 'Missing dependencies for SOCKS support.':
                     self.append_text_output.emit('Отсутствует поддержка SOCKS прокси. Ошибка была записана в crashlog')
                     self.update_enabled_status.emit(False)
                     break
@@ -146,4 +150,5 @@ class Logic(QtCore.QThread):
 
             self.write_data_to_file(self.config_paths['outerPath'], 'a', f'{"|".join(data_array)}|{received_data}\n')
 
+        self.update_enabled_status.emit(False)
         self.NonThreadUi.quit_thread()

@@ -1,6 +1,7 @@
 #Get INN of people according to their data
 
 ### How to install
+Alert!! Work on Python 3.9<br/>
 Open the folder in the cmd, write this in it:<br/>
 `pip install -r requirements.txt`
 

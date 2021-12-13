@@ -21,6 +21,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.StartButton.clicked.connect(self.start_button_pressed)
         self.stopButton.clicked.connect(self.stop_button_pressed)
+        self.proxyFilePicker.clicked.connect(self.change_proxy_path)
         self.fileInputPicker.clicked.connect(self.change_input_path)
         self.fileOutputPicker.clicked.connect(self.change_output_path)
         self.activateTextOutput.clicked.connect(self.activate_text_output)
@@ -72,6 +73,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.stopButton.setEnabled(self.function_started)
         self.textOutput.setEnabled(self.function_started)
+        self.proxyFilePicker.setEnabled(not self.function_started)
+        self.intervalInput.setEnabled(not self.function_started)
+        self.timeoutInput.setEnabled(not self.function_started)
+        self.fileOutputPicker.setEnabled(not self.function_started)
+        self.fileInputPicker.setEnabled(not self.function_started)
         self.StartButton.setEnabled(not self.function_started)
 
     def change_input_path(self):
@@ -81,17 +87,26 @@ class Ui(QtWidgets.QMainWindow):
 
         if picked_data[0]:
             validated_data = picked_data[0].replace('/', '\\')
-            self.config.set_paths(validated_data)
+            print(f'{validated_data}')
+            self.config.set_paths(inner_path=validated_data)
             self.inputPath.setText(self.shorten_string(self.config_paths['innerpath']))
 
     def change_output_path(self):
         picked_data = QFileDialog.getExistingDirectory(self, "Выберите папку",
-                                                       self.config_paths['outerpath'])
+                                                       self.config_paths['outerpath'][0:-14])
 
         if picked_data:
             validated_data = picked_data.replace('/', '\\')
             self.config.set_paths(outer_path=validated_data)
             self.outputPath.setText(self.shorten_string(self.config_paths['outerpath'][0:-14]))
+
+    def change_proxy_path(self):
+        picked_data = QFileDialog.getOpenFileName(self, "Выберите папку", self.config_paths['proxypath'], '*.txt')
+
+        if picked_data[0]:
+            validated_data = picked_data[0].replace('/', '\\')
+            self.config.set_paths(proxy_path=validated_data)
+            self.proxyText.setText(self.config_paths['proxypath'])
 
     def update_current_line(self, line):
         self.textProgress.setText(
@@ -102,6 +117,9 @@ class Ui(QtWidgets.QMainWindow):
         self.textProgress.setText(
             f'{self.textProgress.text().split("/")[0]}/{line}'
         )
+
+    def update_current_proxy(self, proxy):
+        self.currentProxy.setText(f'Прокси: {proxy}')
 
     def quit_thread(self):
         self.Controller.Logic.quit()
@@ -114,6 +132,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.inputPath.setText(self.shorten_string(self.config_paths['innerpath']))
         self.outputPath.setText(self.shorten_string(self.config_paths['outerpath'][0:-14]))
+        self.proxyText.setText(self.config_paths['proxypath'])
 
     def throw_error(self, error_text):
         self.errorText.setText(error_text)

@@ -33,12 +33,15 @@ class Config:
 
         self.write_data_to_file()
 
-    def set_paths(self, inner_path=None, outer_path=None):
+    def set_paths(self, inner_path=None, outer_path=None, proxy_path=None):
         if inner_path is None and self.is_property_exist('PATHS'):
             inner_path = self.config['PATHS']['innerpath']
 
         if outer_path is None and self.is_property_exist('PATHS'):
             outer_path = self.config['PATHS']['outerpath']
+
+        if proxy_path is None and self.is_property_exist('PATHS'):
+            proxy_path = self.config['PATHS']['proxypath']
 
         if outer_path[-13:] != 'completed.txt':
             outer_path += '\\completed.txt'
@@ -46,7 +49,8 @@ class Config:
         self.config['PATHS'] = \
             {
                 'innerPath': inner_path,
-                'outerPath': outer_path
+                'outerPath': outer_path,
+                'proxypath': proxy_path,
             }
 
         self.write_data_to_file()
@@ -91,7 +95,7 @@ class Config:
             self.set_timeouts(0, 1)
 
         if not self.is_property_exist('PATHS'):
-            self.set_paths('', '.')
+            self.set_paths('', '.', '')
 
         if not self.is_property_exist('PROXIES'):
             self.set_proxies('')

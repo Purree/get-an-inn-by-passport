@@ -1,4 +1,13 @@
 .idea
+venv
+main.spec
+pyvenv.cfg
+Scripts
+projectName
+Lib
+Include
+dist
+build
 config.ini
 data.json
 completed.txt
