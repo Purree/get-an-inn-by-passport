@@ -9,6 +9,8 @@ Open the folder in the cmd, write this in it:<br/>
 Open the folder in the console, write this in it:<br/>
 `py main.py`
 
+Or start "main.exe" - compiled by pyinstaller code.
+
 Select document with peoples data what looks like <br/>
 `surname|name|patronymic(Optional)|year-month-day|passport`<br/>
 and pick output folder. After that press "Начать". Code will send requests
