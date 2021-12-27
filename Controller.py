@@ -111,10 +111,10 @@ class Logic(QtCore.QThread):
     def run(self):
         data_for_requests = self.parse_document(self.config_paths['innerPath'])
 
-        # If file already exist append divider
-        if os.path.isfile(self.config_paths['outerPath']):
-            self.write_data_to_file(self.config_paths['outerPath'], 'a',
-                                    f'\n_________________{datetime.now()}______________________\n')
+        # # If file already exist append divider
+        # if os.path.isfile(self.config_paths['outerPath']):
+        #     self.write_data_to_file(self.config_paths['outerPath'], 'a',
+        #                             f'\n_________________{datetime.now()}______________________\n')
 
         self.update_lines_count.emit(f'{len(data_for_requests)}')
 
