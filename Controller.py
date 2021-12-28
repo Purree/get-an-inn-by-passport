@@ -5,7 +5,6 @@ from datetime import datetime
 from PyQt6.QtCore import QThread
 import PyQt6.QtCore as QtCore
 
-
 from inn_requests import send_request, get_random_proxy_from_file
 
 
@@ -41,7 +40,13 @@ class Controller:
         :param path: String Path to document with data
         :return: Array Ready to request data
         """
-        data_from_document = open(path, 'r', encoding='utf-8').readlines()
+        print(self.Ui.rememberLine.isChecked())
+        print(self.Ui.remembered_position)
+
+        data_from_document = open(path, 'r', encoding='utf-8').readlines()[self.Ui.remembered_position::] \
+            if self.Ui.rememberLine.isChecked() \
+            else open(path, 'r', encoding='utf-8').readlines()
+
         reformatted_data = []
         for line in data_from_document:
             line = line.replace("\n", "").split('|')
@@ -121,7 +126,7 @@ class Logic(QtCore.QThread):
         for index, (data_array, data_object) in enumerate(data_for_requests):
             if not self.NonThreadUi.function_started:
                 break
-            self.update_line_index.emit(f'{index+1}')
+            self.update_line_index.emit(f'{index + 1 + (self.NonThreadUi.remembered_position if self.NonThreadUi.rememberLine.isChecked() else 0)}')
 
             proxy = get_random_proxy_from_file(self.config_paths['proxypath'])
 
@@ -152,11 +157,26 @@ class Logic(QtCore.QThread):
                     break
 
                 self.append_text_output.emit(
-                    'Ошибка со стороны сервера, возможно, нерабочий прокси. Ошибка была записана в crashlog')
-                self.update_enabled_status.emit(False)
-                break
+                    'Ошибка со стороны сервера, возможно, нерабочий прокси.')
+                received_data = {'error': 'Ошибка со стороны сервера, возможно, нерабочий прокси.'}
 
-            self.write_data_to_file(self.config_paths['outerPath'], 'a', f'{"|".join(data_array)}|{received_data}\n')
+            if 'error' not in received_data:
+                self.write_data_to_file(self.config_paths['outerPath'], 'a',
+                                        f'{"|".join(data_array)}|{received_data}\n')
+
+                file_path = self.config_paths['outerPath'].split('\\')
+                file_path[-1] = 'completedWithoutInn.txt'
+                file_path = '\\'.join(file_path)
+
+                self.write_data_to_file(file_path, 'a',
+                                        f'{"|".join(data_array)}\n')
+            else:
+                file_path = self.config_paths['outerPath'].split('\\')
+                file_path[-1] = 'failed.txt'
+                file_path = '\\'.join(file_path)
+
+                self.write_data_to_file(file_path, 'a',
+                                        f'{"|".join(data_array)}|{received_data["error"]}\n')
 
         self.update_enabled_status.emit(False)
         self.NonThreadUi.quit_thread()

@@ -67,15 +67,16 @@ def send_request(request_data, cookies, timeout=0, interval=1, request_id='', pr
                             headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
                                                    'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 '
                                                    'Safari/537.36'},
-                            proxies=active_proxy
+                            proxies=active_proxy,
+                            timeout=10
                             )
 
     print_function(f'{request.json()}')
     request_id = request.json()['requestId'] if not request_id else request_id
 
     if 'error_code' in request.json():
-        return 'Информация не найдена' if request.json()['error_code'] == 1.0 \
-            else 'Ошибка на стороне сайта, код ошибки: ' + str(request.json()['error_code'])
+        return {'error': 'Информация не найдена'} if request.json()['error_code'] == 1.0 \
+            else {'error': 'Ошибка на стороне сайта, код ошибки: ' + str(request.json()['error_code'])}
 
     return request.json()['inn'] if 'inn' in request.json() else send_request({
         'c': 'get',

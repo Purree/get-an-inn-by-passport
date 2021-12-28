@@ -12,6 +12,8 @@ class Ui(QtWidgets.QMainWindow):
 
         uic.loadUi('window.ui', self)
 
+        self.remembered_position = 0
+        self.rememberedPositionLabel.setText(str(self.remembered_position))
         self.config = Config()
         self.config_cookies = self.config.get_config['COOKIES']
         self.config_timeouts = self.config.get_config['TIMEOUTS']
@@ -65,6 +67,8 @@ class Ui(QtWidgets.QMainWindow):
 
     def stop_button_pressed(self):
         self.append_text_output('Скрипт выключен\n_________________\n')
+        self.remembered_position = int(self.textProgress.text().split('/')[0])
+        self.rememberedPositionLabel.setText(str(self.remembered_position))
         self.update_enabled_status(False)
 
     def activate_text_output(self):
@@ -87,6 +91,7 @@ class Ui(QtWidgets.QMainWindow):
         self.StartButton.setEnabled(not self.function_started)
 
     def change_input_path(self):
+        self.rememberLine.setChecked(False)
         picked_data = QFileDialog.getOpenFileName(
             self, 'Выбери входной файл', self.config_paths['innerpath'], '*.txt'
         )

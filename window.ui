@@ -503,6 +503,48 @@
      <string>Удалить</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="rememberLine">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>350</y>
+      <width>191</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Начинать с последней строчки</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="rememberedPositionLabel">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>350</y>
+      <width>49</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>123123</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>350</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>- запомненая позиция</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
